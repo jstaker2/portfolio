@@ -1,53 +1,262 @@
+ArrayList <Stalagtite> stalagtites;
+ArrayList <Stalagmite> stalagmites;
+ArrayList <Rocket> rockets;
+ArrayList <Toptri> toptris;
+int score, x, y;
+boolean play;
+boolean w;
+boolean a;
+boolean s;
+boolean d;
+Ship s1;
+Timer timer;
 
-class Block {
-int x, y, speed;
-color c;
 
-//constructor
-
-void display() {}
-
-void move() {}
+void setup() {
+  size (700, 400);
+  stalagtites = new ArrayList();
+  stalagmites = new ArrayList();
+  rockets = new ArrayList();
+  toptris = new ArrayList();
+  s1 = new Ship((width/2)-80, (height/2)-80);
+  timer = new Timer(int(random(3000, 5000)));
+  timer.start();
+  w= false;
+  a = false;
+  s = false;
+  d = false;
 }
 
-ArrayList rockets;
-ArrayList blocks;
-int score;
-boolean play;
+void draw() {
+  background(0);
 
-void setup() {}
+  for (int i = 0; i < rockets.size(); i++) {
+    Rocket rocket = rockets.get(i);
+    rocket.display();
+    rocket.fire();
+  }
 
-void draw() {}
+  //stalagtites.add(new Stalagtite(int(width), (int(0- 25))));
+  for (int i = 0; i < stalagtites.size(); i++) {
+    Stalagtite stalagtite = stalagtites.get(i);
+    stalagtite.display();
+    stalagtite.move();
+    if (stalagtite.reachedLeft() == true) {
+      stalagtites.remove(stalagtite);
+    }
+  }
 
-void scorePanel() {}
 
-void startScreen() {}
+  for (int i = 0; i < stalagmites.size(); i++) {
+    Stalagmite stalagmite = stalagmites.get(i);
+    stalagmite.display();
+    stalagmite.move();
+    if (stalagmite.reachedLeft() == true) {
+      stalagmites.remove(stalagmite);
+    }
+  }
 
-void gameOver() {}
+  s1.display();
 
-void keyPressed() {}
+  if (timer.isFinished()) {
+    //distribute stalagtite
+    stalagtites.add(new Stalagtite(int(width), -45));
+    stalagmites.add(new Stalagmite(int(width), 150));
+    timer.start();
+  }
+}
+
+void keyPressed() {
+  if (key == 'w' || key == 'W') {
+    w = true;
+  }
+  if (key == 'a' || key == 'A') {
+    a = true;
+  }
+  if (key == 's' || key == 'S') {
+    s = true;
+  }
+  if (key == 'd' || key == 'D') {
+    d = true;
+  }
+  if (keyCode == 32) {
+    if (s1.ammo > 0) {
+      rockets.add(new Rocket(s1.x+125, s1.y+85, #FF0000));
+      s1.ammo--;
+    }
+  }
+}
+
+void keyReleased() {
+  if (key == 'w' || key == 'W') {
+    w = false;
+  }
+  if (key == 'a' || key == 'A') {
+    a = false;
+  }
+  if (key == 's' || key == 'S') {
+    s = false;
+  }
+  if (key == 'd' || key == 'D') {
+    d = false;
+  }
+}
+
+
+
+void scorePanel() {
+}
+
+void startScreen() {
+}
+
+void gameOver() {
+}
 
 class Rocket {
+  //member variables
+  int x, y, speed, rad;
+  color c;
 
-int x, y, speed;
-color c;
+  //constructor
+  Rocket(int x, int y, color c) {
+    this.x = x;
+    this.y = y;
+    this.c = c;
+    speed = 6;
+    rad = 10;
+  }
 
-//constructor
+  //display method
+  void display() {
+    rectMode(CENTER);
+    noStroke();
+    fill(c);
+    rect(x, y, 20, 7);
+  }
 
-void display() {}
+  void fire() {
+    x+= speed;
+  }
 
-void fire() {}
-
+  boolean reachedRight() {
+    if (x>width + 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
-class Runner {
+class Ship {
 
-int x, y, ammo;
+  int x, y, ammo, lives, speed, rad;
 
-//constructor
+  //constructor
+  Ship(int x, int y) {
+    this.x=x;
+    this.y=y;
+    lives = 3;
+    ammo = 100;
+    rad = 25;
+    speed = 20;
+  }
 
-void display() {}
 
+  void display() {
+
+    PImage shipImage;
+    shipImage = loadImage("spaceship.png");
+    shipImage.resize(150, 150);
+    rectMode(CENTER);
+    image(shipImage, x, y);
+    if (w == true) {
+      y-= 5;
+    }
+    if (a == true) {
+      x-= 5;
+    }
+    if (s == true) {
+      y+=5;
+    }
+    if (d == true) {
+      x+=5;
+    }
+  }
+}
+
+class Stalagmite {
+  int x, y, speed;
+  color c;
+
+  //constructor
+  Stalagmite(int x, int y) {
+    this.x = x;
+    this.y = y;
+    speed = int(random(2, 4));
+  }
+
+  void display() {
+    PImage stalagmiteImage;
+    stalagmiteImage = loadImage("stalagmite.png");
+    stalagmiteImage.resize(250, 250);
+    rectMode(CENTER);
+    image(stalagmiteImage, x, y);
+  }
+
+  void move() {
+    x-= speed;
+  }
+
+  boolean reachedLeft() {
+    if (x<0-300) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+class Stalagtite {
+  int x, y, speed, rad;
+  color c;
+
+  //constructor
+  Stalagtite(int x, int y) {
+    this.x = x;
+    this.y = y;
+    speed = int(random(2, 4));
+    rad = 50;
+  }
+
+  void display() {
+    PImage stalagtiteImage;
+    stalagtiteImage = loadImage("Stalagtite.png");
+    stalagtiteImage.resize(300, 300);
+    rectMode(CENTER);
+    image(stalagtiteImage, x, y);
+  }
+
+  void move() {
+    x-= speed;
+  }
+
+  boolean rocketIntersection(Rocket rocket) {
+    float distance = dist(x, y, rocket.x, rocket.y);
+    if (distance < rad + rocket.rad) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  boolean reachedLeft() {
+    if (x<0-300) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 // Example 10-5: Object-oriented timer
@@ -82,14 +291,24 @@ class Timer {
   }
 }
 
+class Toptri {
+
+  int x, y;
+  
+  //triangle(Stalagtite.x - 30, Stalagtite.y - 30, Stalagtite.x + 30, Stalagtite.y - 30, Stalagtite.x, Stalagtite.y +50) {
+  
+  }
+  
+
 class wall {
 
   int x, y, speed;
-  
-  //constructor
-  
-  void display() {}
-  
-  void move() {}
 
+  //constructor
+
+  void display() {
+  }
+
+  void move() {
+  }
 }
